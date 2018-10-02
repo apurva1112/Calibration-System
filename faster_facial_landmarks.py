@@ -29,7 +29,7 @@ vs = VideoStream(src=0).start()
 REC_X1=250
 REC_Y1=100
 REC_X2=450
-REC_Y2=400
+REC_Y2=350
 REC_RED=0
 REC_GREEN=255
 REC_BLUE=0
@@ -44,12 +44,18 @@ TEXT_WIDTH=2
 REC_FACE_BLUE=255
 REC_FACE_GREEN=0
 REC_FACE_RED=0
-REC_FACE_WIDTH=2
+REC_FACE_WIDTH=1
 REC_CENTER_X=350
 REC_CENTER_Y=250
+FACE_TEXT_SIZE_X=450
+FACE_TEXT_SIZE_Y=20
+CIRCLE_BLUE=0
+CIRCLE_GREEN=0
+CIRCLE_RED=255
+CIRCLE_WIDTH=1
+RADIUS=0.35
 # vs = VideoStream(usePiCamera=True).start() # Raspberry Pi
 time.sleep(2.0)
-
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream, resize it to
@@ -61,19 +67,20 @@ while True:
  
     # detect faces in the grayscale frame
     rects = detector(gray, 0)
+    cv2.rectangle(frame, (REC_X1, REC_Y1), (REC_X2, REC_Y2), (REC_BLUE, REC_GREEN, REC_RED), REC_WID)
 
     # check to see if a face was detected, and if so, draw the total
     # number of faces on the frame
     if len(rects) > 0:
         text = "{} face(s) found".format(len(rects))
-        cv2.putText(frame, text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX,0.5, (0, 0, 255), 2)
+        cv2.putText(frame, text, (FACE_TEXT_SIZE_X, FACE_TEXT_SIZE_Y), cv2.FONT_HERSHEY_SIMPLEX,TEXT_SIZE, (TEXT_BLUE, TEXT_GREEN, TEXT_RED), TEXT_WIDTH)
 
     # loop over the face detections
     for rect in rects:
     # compute the bounding box of the face and draw it on the
         # frame
         (bX, bY, bW, bH) = face_utils.rect_to_bb(rect)
-        cv2.rectangle(frame, (bX, bY), (bX + bW, bY + bH),(0, 255, 0), 1)
+        cv2.rectangle(frame, (bX, bY), (bX + bW, bY + bH),(REC_FACE_BLUE, REC_FACE_GREEN, REC_FACE_RED), REC_FACE_WIDTH)
                 
         CENTER_X=(bX+(bW/2))
         CENTER_Y=(bY+(bH/2))
@@ -93,7 +100,10 @@ while True:
         area = (min(REC_X2,bX+bW)-max(REC_X1,bX))*((min(REC_Y2,bY+bH)-max(REC_Y1,bY)))
         A = bW*bH
         per = 100*area/A
-        cv2.putText(frame, str(per), (TEXT_X,TEXT_Y+30), cv2.FONT_HERSHEY_SIMPLEX, TEXT_SIZE, (TEXT_BLUE, TEXT_GREEN, TEXT_RED), TEXT_WIDTH)
+        if per>=80:
+            cv2.putText(frame, "calibrated", (TEXT_X,TEXT_Y+30), cv2.FONT_HERSHEY_SIMPLEX, TEXT_SIZE, (TEXT_BLUE, TEXT_GREEN, TEXT_RED), TEXT_WIDTH)
+        else:
+            cv2.putText(frame, str(per), (TEXT_X,TEXT_Y+30), cv2.FONT_HERSHEY_SIMPLEX, TEXT_SIZE, (TEXT_BLUE, TEXT_GREEN, TEXT_RED), TEXT_WIDTH)
 
             # determine the facial landmarks for the face region, then
             # convert the facial landmark (x, y)-coordinates to a NumPy
@@ -104,9 +114,9 @@ while True:
             # loop over the (x, y)-coordinates for the facial landmarks
             # and draw each of them
         for (i, (x, y)) in enumerate(shape):
-            cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+            cv2.circle(frame, (x, y), 1, (CIRCLE_BLUE, CIRCLE_GREEN, CIRCLE_RED), -1)
             cv2.putText(frame, str(i + 1), (x - 10, y - 10),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+            cv2.FONT_HERSHEY_SIMPLEX, RADIUS, (CIRCLE_BLUE, CIRCLE_GREEN, CIRCLE_RED), CIRCLE_WIDTH)
 
             # show the frame
         cv2.imshow("Frame", frame)
