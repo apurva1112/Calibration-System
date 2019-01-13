@@ -1,0 +1,23 @@
+#include <Servo.h>
+
+int servoPin=3;                                          //remember to connect the servo to pin 3
+
+Servo servo;
+int angle=90;
+
+void setup()
+{
+  servo.attach(servoPin);
+  servo.write(90)
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  if(Serial.available())
+  {
+    angle=Serial.read()-'0';                                //computed the angle read through Serial from raspberry pi
+    servo.write(angle);                                     //rotates the servo by the specified angle
+  }
+
+}
